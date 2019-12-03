@@ -5,28 +5,9 @@
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
     <title>Food</title>
     <meta name='viewport' content='width=device-width, initial-scale=1'>
-    <link rel='stylesheet' type='text/css' media='screen' href='style.css'>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <%- include ('../header.ejs') %>  
 <body>
-    <div>
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <a class="navbar-brand" href="/"><h3>FOOD</h3></a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
-                    <li class="nav-item active">
-                        <a class="nav-link" href="/">Home<span class="sr-only">(current)</span></a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/create">Criar<span class="sr-only">(current)</span></a>
-                    </li>
-                </ul>
-            </div>
-        </nav>
-    </div>
+    <%- include ('../menu.ejs') %>  
     <div class="col-4 my-4">
         <label for="exampleFormControlInput1">Procurar:</label>
         <input type="text" class="form-control form-control" id="exampleFormControlInput1" placeholder="Nome">
@@ -37,23 +18,70 @@
             <tr>
                 <th scope="col">id</th>
                 <th scope="col">nome</th>
-                <th scope="col">descrição</th>
-                <th scope="col">preço</th>
-                <th scope="col">categoria</th>
             </tr>
             </thead>
-            <tbody>
-            <tr>
-                <th scope="row">1</th>
-                <td>Mark</td>
-                <td>Otto</td>
-                <td>@mdo</td>
-                <td></td>
-                <td><a href="Create.html">Edit</a></td>
-                <td><a href="#">Delete</a></td>
-            </tr>
+            <tbody id="body">
             </tbody>
         </table>
     </div>
+<script>
+    $(document).ready(function(){
+        $(document).on('click', '.del', function(){
+            const id = $(this).attr('id');
+            $.ajax({
+                type: 'DELETE',
+                url: `/api/category/${id}`,
+                success: function(s) {
+                    Sweetalert2.fire({
+                        title: 'Sucesso!',
+                        text: 'Categoria excluida com sucesso!',
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    })
+                    setTimeout(() => {
+                        window.location.reload()
+                    }, 1500)
+                },
+                error: function(e) {
+                    if(e.status === 200) {
+                        Sweetalert2.fire({
+                            title: 'Sucesso!',
+                            text: 'Categoria excluida com sucesso!',
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        })
+                        setTimeout(() => {
+                            window.location.reload()
+                        }, 1500)
+                    } else {
+                        Sweetalert2.fire({
+                            title: 'Erro!',
+                            text: 'Erro ao excluir categoria!',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        })
+                    }
+                }
+            })
+        })
+        $.ajax({
+            type: 'GET',
+            url: '/api/category',
+            success: function(s) {
+                s.data.forEach(e => {
+                    $('#body').append(`<tr> <th scope="row">${e._id}</th> <td>${e.nome}</td> <td><a href="/category/edit/${e._id}" class="btn btn-danger">Edit</a></td> <td><button class="btn btn-primary del" id=${e._id} class="btn btn-primary" id=${e._id}>Delete</button></td> </tr>`)
+                })
+            },
+            error: function(e) {
+                Sweetalert2.fire({
+                    title: 'Erro!',
+                    text: 'Erro ao carregar categorias',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                })
+            }
+        })
+    })
+</script>
 </body>
 </html>

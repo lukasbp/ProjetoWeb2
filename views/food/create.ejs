@@ -3,58 +3,95 @@
 <head>
     <meta charset='utf-8'>
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
-    <title>FOOD</title>
+    <title>FOOD - Comida (Criar)</title>
     <meta name='viewport' content='width=device-width, initial-scale=1'>
-    <link rel='stylesheet' type='text/css' media='screen' href='style.css'>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <%- include ('../header.ejs') %>  
 <body>
-    <div>
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <a class="navbar-brand" href="/"><h3>FOOD</h3></a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/">Home<span class="sr-only">(current)</span></a>
-                    </li>
-                    <li class="nav-item active">
-                        <a class="nav-link" href="/create">Criar<span class="sr-only">(current)</span></a>
-                    </li>
-                </ul>
-            </div>
-        </nav>
-    </div>
-    <form>
+    <%- include ('../menu.ejs') %>  
+    <form id="create">
         <div class="form-group">
             <div class="col-auto my-5">
-                <label>Dish Name:</label>
-                <input type="text" class="form-control form-control" id="dish-name">
+                <label>Nome:</label>
+                <input type="text" class="form-control form-control" id="name" name="name">
             </div>
-        </div>
-        <div class="form-group">
             <div class="col-auto my-5">
-                <label>Dish Description:</label>
-                <input type="text" class="form-control" id="dish-description">
+                <label>Descrição:</label>
+                <input type="text" class="form-control form-control" id="description" name="description">
             </div>
-        </div>
-        <div class="form-group">
-            <div class="col-auto my-5">    
-                <label>Dish Price:</label>
-                <input type="text" class="form-control" id="dish-price">
-            </div>
-        </div>
-        <div class="form-group">
             <div class="col-auto my-5">
-                <label>Dish Category:</label>
-                <input type="text" class="form-control" id="dish-name"><br>
+                <label>Preço:</label>
+                <input type="number" class="form-control form-control" id="price" name="price">
+            </div>
+            <div class="col-auto my-5">
+                <label for="exampleFormControlSelect1">Categoria</label>
+                <select class="form-control" id="categories">
+                </select>
             </div>
         </div>
     </form>
     <div>
-        <button type="button" class="btn btn-primary btn-lg btn-block">Register new dish</button>
+        <button type="submit" id="submit" class="btn btn-primary btn-lg btn-block">Criar</button>
     </div>
+<script>
+    $(function() {
+        $('#submit').click(function(e) {
+            e.preventDefault();
+            const name = $('#name').val()
+            const description = $('#description').val()
+            const price = $('#price').val()
+            const category = $('#categories').val()
+            if(!name || !description || !price || !category) {
+                Sweetalert2.fire({
+                    title: 'Erro!',
+                    text: 'Preencha os campos corretamente',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                })
+                return;
+            }
+            $.ajax({
+                type: 'POST',
+                url: '/api/food',
+                data: {name, description, price, category},
+                success: function(s) {
+                    Sweetalert2.fire({
+                        title: 'Sucesso!',
+                        text: 'Comida criada com sucesso',
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    })
+                    setTimeout(() => {
+                        window.location.href = "/"
+                    }, 1500)
+                },
+                error: function(e) {
+                    Sweetalert2.fire({
+                        title: 'Erro!',
+                        text: 'Erro ao criar categoria',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    })
+                }
+            })
+        })
+        $.ajax({
+            type: 'GET',
+            url: '/api/category',
+            success: function(s){
+                s.data.forEach(e => {
+                    $('#categories').append(`<option value=${e._id}>${e.nome}</option>`)
+                })
+            },
+            error: function(e) {
+                Sweetalert2.fire({
+                    title: 'Erro!',
+                    text: 'Erro ao carregar categorias',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                })
+            }
+        })
+    });
+</script>
 </body>
 </html>

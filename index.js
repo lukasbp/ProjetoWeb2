@@ -41,7 +41,7 @@ router
   .delete(categoryController.delete)
   .get(categoryController.view);
 
-app.get('/', (req, res) => {
+app.get('/category', (req, res) => {
   res.render('category/index.ejs');
 });
 
@@ -53,7 +53,7 @@ app.get('/', (req, res) => {
   res.render('food/index.ejs');
 });
 
-app.get('/food/create', (req, res) => {
+app.get('/create', (req, res) => {
   res.render('food/create.ejs');
 });
 
