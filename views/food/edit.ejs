@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>FOOD - Comida (Editar)</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <%- include ('../header.ejs') %>  
+<body>
+    <%- include ('../menu.ejs') %>  
+    <form id="create">
+        <div class="form-group">
+            <div class="col-auto my-5">
+                <label>ID:</label>
+                <input type="text" disabled class="form-control form-control" id="id" name="id">
+            </div>
+            <div class="col-auto my-5">
+                <label>Nome:</label>
+                <input type="text" class="form-control form-control" id="name" name="name">
+            </div>
+            <div class="col-auto my-5">
+                <label>Descrição:</label>
+                <input type="text" class="form-control form-control" id="description" name="description">
+            </div>
+            <div class="col-auto my-5">
+                <label>Preço:</label>
+                <input type="number" class="form-control form-control" id="price" name="price">
+            </div>
+            <div class="col-auto my-5">
+                <label for="exampleFormControlSelect1">Categoria</label>
+                <select class="form-control" id="categories">
+                </select>
+            </div>
+        </div>
+    </form>
+    <div>
+        <button type="submit" id="submit" class="btn btn-primary btn-lg btn-block">Editar</button>
+    </div>
+<script>
+    $(function() {
+        getParameterByName = (name) => {
+            let url = window.location.href;
+            let urlName = name.replace(/[\[\]]/g, '\\$&');
+            let regex = new RegExp('[?&]' + urlName + '(=([^&#]*)|&|#|$)'),
+                results = regex.exec(url);
+            if (!results) return null;
+            if (!results[2]) return '';
+            return decodeURIComponent(results[2].replace(/\+/g, ' '));
+        }
+        
+        const id = getParameterByName('id');
+
+        $('#submit').click(function(e) {
+            e.preventDefault();
+            if(!id) {
+                Sweetalert2.fire({
+                    title: 'Erro!',
+                    text: 'ID inválido',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                })
+                return;
+            }
+            const name = $('#name').val()
+            const description = $('#description').val()
+            const price = $('#price').val()
+            const category = $('#categories').val()
+            if(!name || !description || !price || !category) {
+                Sweetalert2.fire({
+                    title: 'Erro!',
+                    text: 'Preencha os campos corretamente',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                })
+                return;
+            }
+            $.ajax({
+                type: 'PUT',
+                url: `/api/food/${id}`,
+                data: {id, name, description, price, category},
+                success: function(s) {
+                    Sweetalert2.fire({
+                        title: 'Sucesso!',
+                        text: 'Comida editada com sucesso',
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    })
+                    setTimeout(() => {
+                        window.location.href = "/"
+                    }, 1500)
+                },
+                error: function(e) {
+                    Sweetalert2.fire({
+                        title: 'Erro!',
+                        text: 'Erro ao editar comida',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    })
+                }
+            })
+        })
+        if (id) {
+            $.ajax({
+                type: 'GET',
+                url: '/api/category',
+                success: function(s){
+                    s.data.forEach(e => {
+                        $('#categories').append(`<option value=${e._id}>${e.nome}</option>`)
+                    })
+                    $.ajax({
+                        type: 'GET',
+                        url: `/api/food/${getParameterByName('id')}`,
+                        success: function(d){
+                            $('#id').val(d._id)
+                            $('#name').val(d.nome)
+                            $('#description').val(d.descricao)
+                            $('#price').val(d.preco)
+                            $('#categories').val(d.categoria)
+                        },
+                        error: function(e) {
+                            Sweetalert2.fire({
+                                title: 'Erro!',
+                                text: 'Erro ao carregar comida',
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            })
+                        }
+                    })
+                },
+                error: function(e) {
+                    Sweetalert2.fire({
+                        title: 'Erro!',
+                        text: 'Erro ao carregar categorias',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    })
+                }
+            })
+        } else {
+            Sweetalert2.fire({
+                title: 'Erro!',
+                text: 'ID de categoria inválido',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            })
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>FOOD - Categoria (Editar)</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <%- include ('../header.ejs') %>  
+<body>
+    <%- include ('../menu.ejs') %>  
+    <form id="create">
+        <div class="form-group">
+            <div class="col-auto my-5">
+                <label>ID:</label>
+                <input type="text" disabled class="form-control form-control" id="id" name="id">
+            </div>
+            <div class="col-auto my-5">
+                <label>Nome:</label>
+                <input type="text" class="form-control form-control" id="name" name="name">
+            </div>
+        </div>
+    </form>
+    <div>
+        <button type="submit" id="submit" class="btn btn-primary btn-lg btn-block">Editar</button>
+    </div>
+<script>
+    $(function() {
+        getParameterByName = (name) => {
+            let url = window.location.href;
+            let urlName = name.replace(/[\[\]]/g, '\\$&');
+            let regex = new RegExp('[?&]' + urlName + '(=([^&#]*)|&|#|$)'),
+                results = regex.exec(url);
+            if (!results) return null;
+            if (!results[2]) return '';
+            return decodeURIComponent(results[2].replace(/\+/g, ' '));
+        }
+        
+        const id = getParameterByName('id');
+
+        $('#submit').click(function(e) {
+            e.preventDefault();
+            if(!id) {
+                Sweetalert2.fire({
+                    title: 'Erro!',
+                    text: 'ID inválido',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                })
+                return;
+            }
+            const name = $('#name').val()
+            if(!name) {
+                Sweetalert2.fire({
+                    title: 'Erro!',
+                    text: 'Preencha o nome corretamente',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                })
+                return;
+            }
+            $.ajax({
+                type: 'PUT',
+                url: `/api/category/${id}`,
+                data: {id, name},
+                success: function(s) {
+                    Sweetalert2.fire({
+                        title: 'Sucesso!',
+                        text: 'Categoria editada com sucesso',
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    })
+                    setTimeout(() => {
+                        window.location.href = "/category"
+                    }, 1500)
+                },
+                error: function(e) {
+                    Sweetalert2.fire({
+                        title: 'Erro!',
+                        text: 'Erro ao editar categoria',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    })
+                }
+            })
+        })
+        if (id) {
+            $.ajax({
+                type: 'GET',
+                url: `/api/category/${getParameterByName('id')}`,
+                success: function(s){
+                    $('#id').val(s._id)
+                    $('#name').val(s.nome)
+                },
+                error: function(e) {
+                    Sweetalert2.fire({
+                        title: 'Erro!',
+                        text: 'Erro ao carregar categorias',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    })
+                }
+            })
+        } else {
+            Sweetalert2.fire({
+                title: 'Erro!',
+                text: 'ID de categoria inválido',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            })
+        }
+    });
+</script>
+</body>
+</html>

@@ -29,7 +29,8 @@ router
 router
   .route('/food/:id')
   .delete(foodController.delete)
-  .get(foodController.view);
+  .get(foodController.view)
+  .put(foodController.edit);
 
 router
   .route('/category')
@@ -39,7 +40,8 @@ router
 router
   .route('/category/:id')
   .delete(categoryController.delete)
-  .get(categoryController.view);
+  .get(categoryController.view)
+  .put(categoryController.edit);
 
 app.get('/category', (req, res) => {
   res.render('category/index.ejs');
@@ -49,12 +51,20 @@ app.get('/category/create', (req, res) => {
   res.render('category/create.ejs');
 });
 
+app.get('/category/edit', (req, res) => {
+  res.render('category/edit.ejs');
+});
+
 app.get('/', (req, res) => {
   res.render('food/index.ejs');
 });
 
 app.get('/create', (req, res) => {
   res.render('food/create.ejs');
+});
+
+app.get('/edit', (req, res) => {
+  res.render('food/edit.ejs');
 });
 
 app.use('/api', router);

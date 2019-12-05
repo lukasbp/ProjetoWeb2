@@ -40,3 +40,18 @@ exports.view = (req, res) => {
     return res.status(200).json(category);
   });
 };
+
+exports.edit = (req, res) => {
+  Category.findById(req.params.id, (err, category) => {
+    if (err) {
+      return res.status(404).json();
+    }
+    category.nome = req.body.name;
+    category.save(err => {
+      if (err) {
+        return res.status(500).json();
+      }
+      return res.status(200).json(category);
+    });
+  });
+};

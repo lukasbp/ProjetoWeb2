@@ -10,7 +10,7 @@
     <%- include ('../menu.ejs') %>  
     <div class="col-4 my-4">
         <label for="exampleFormControlInput1">Procurar:</label>
-        <input type="text" class="form-control form-control" id="exampleFormControlInput1" placeholder="Nome">
+        <input type="text" class="form-control form-control" id="search" placeholder="Nome">
     </div>
     <div class="table-middle col-auto">    
         <table class="table table-hover">
@@ -29,6 +29,23 @@
     </div>
     <script>
         $(document).ready(function(){
+            $("#search").keyup(function() {
+                var searchText = this.value;
+                var trs = $("#body").find("tr");
+                if (this.value == "") {
+                    trs.show();
+                    return;
+                }
+                trs.hide();
+
+                trs.filter(function(k, v) {
+                    if ($(this).is(":contains('" + searchText + "')")) {
+                        return true;
+                    }
+                    return false;
+                }).show();
+            })
+
             $(document).on('click', '.del', function(){
                 const id = $(this).attr('id');
                 $.ajax({
@@ -69,16 +86,31 @@
             })
             $.ajax({
                 type: 'GET',
-                url: '/api/food',
+                url: '/api/category',
                 success: function(s) {
-                    s.data.forEach(e => {
-                        $('#body').append(`<tr> <th scope="row">${e._id}</th> <td>${e.nome}</td> <td>${e.descricao}</td> <td>${e.preco}</td> <td>${e.categoria}</td> <td><a href="/edit/${e._id}" class="btn btn-danger">Edit</a></td> <td><button class="btn btn-primary del" id=${e._id} class="btn btn-primary" id=${e._id}>Delete</button></td> </tr>`)
+                    $.ajax({
+                        type: 'GET',
+                        url: '/api/food',
+                        success: function(d) {
+                            d.data.forEach(e => {
+                                let category = s.data.filter(f => f._id == e.categoria);
+                                $('#body').append(`<tr> <th scope="row">${e._id}</th> <td class="name">${e.nome}</td> <td>${e.descricao}</td> <td>${e.preco}</td> <td>${category[0].nome}</td> <td><a href="/edit?id=${e._id}" class="btn btn-danger">Edit</a></td> <td><button class="btn btn-primary del" id=${e._id} class="btn btn-primary" id=${e._id}>Delete</button></td> </tr>`)
+                            })
+                        },
+                        error: function(e) {
+                            Sweetalert2.fire({
+                                title: 'Erro!',
+                                text: 'Erro ao carregar comidas',
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            })
+                        }
                     })
                 },
                 error: function(e) {
                     Sweetalert2.fire({
                         title: 'Erro!',
-                        text: 'Erro ao carregar comidas',
+                        text: 'Erro ao carregar categorias',
                         icon: 'error',
                         confirmButtonText: 'OK'
                     })
